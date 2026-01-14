@@ -1,0 +1,44 @@
+{
+  "name": "kingsman",
+  "displayName": "Kingsman",
+  "description": "A VS Code extension for quick Google keyword searches",
+  "version": "0.1.0",
+  "publisher": "nilhan-ai",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "activationEvents": [],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "kingsman.googleSearch",
+        "title": "Kingsman: Google Search"
+      }
+    ],
+    "configuration": {
+      "title": "Kingsman",
+      "properties": {
+        "kingsman.searchBaseUrl": {
+          "type": "string",
+          "default": "https://www.google.com/search?q=",
+          "description": "Base URL for search queries. The encoded search term will be appended to this URL."
+        }
+      }
+    }
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run compile",
+    "compile": "tsc -p ./",
+    "watch": "tsc -watch -p ./",
+    "lint": "eslint src --ext ts"
+  },
+  "devDependencies": {
+    "@types/vscode": "^1.85.0",
+    "@types/node": "^20.10.0",
+    "typescript": "^5.3.0"
+  }
+}
