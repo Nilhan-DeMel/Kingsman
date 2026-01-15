@@ -2,8 +2,10 @@
 .vscode-test/**
 src/**
 node_modules/**
+.git/**
 .gitignore
 tsconfig.json
 *.map
 *.ts
 !*.d.ts
+**/*.vsix
