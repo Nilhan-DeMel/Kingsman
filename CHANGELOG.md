@@ -2,8 +2,36 @@
 
 All notable changes to the Kingsman extension will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+## [0.2.0] - 2026-01-15
+
+### Added
+
+- **Skill Store** - IDE-native skill discovery, inspection, and installation
+  - `Kingsman: Skill Store` command opens store webview
+  - Natural language search for skills on GitHub
+  - Quick Check for category classification (A/B/C)
+  - Risk scanning (binaries, scripts, suspicious patterns)
+  - Stage & Install workflow with explicit approval
+  - Installed skills management
+  - GitHub PAT support for improved rate limits
+
+- **Agent API Commands**
+  - `kingsman.store.search` - Search for skills (returns JSON)
+  - `kingsman.store.inspect` - Inspect a repository
+  - `kingsman.store.stage` - Stage for installation
+  - `kingsman.store.install` - Install staged skill
+  - `kingsman.store.listInstalled` - List installed skills
+  - `kingsman.store.uninstall` - Remove a skill
+
+- **Bundled Backend Skills**
+  - `kingsman-search` - Multi-source discovery
+  - `kingsman-inspector` - Classification and risk analysis
+  - `kingsman-installer` - Installation and registry
+
+### Changed
+
+- Description updated to reflect Skill Store functionality
+- Keywords updated for discoverability
 
 ## [0.1.2] - 2026-01-15
 

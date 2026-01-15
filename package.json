@@ -1,8 +1,8 @@
 {
   "name": "kingsman",
   "displayName": "Kingsman",
-  "description": "Quick Google keyword searches from your editor - with agent skill support",
-  "version": "0.1.2",
+  "description": "Skill Store for Antigravity agents - discover, inspect, and install skills from GitHub",
+  "version": "0.2.0",
   "publisher": "nilhan-demel",
   "license": "MIT",
   "icon": "assets/icon.png",
@@ -21,18 +21,23 @@
     "Other"
   ],
   "keywords": [
-    "google",
-    "search",
-    "browser",
-    "web",
+    "skills",
     "agent",
-    "skill",
-    "mcp"
+    "store",
+    "marketplace",
+    "github",
+    "mcp",
+    "google",
+    "search"
   ],
   "activationEvents": [],
   "main": "./out/extension.js",
   "contributes": {
     "commands": [
+      {
+        "command": "kingsman.store.open",
+        "title": "Kingsman: Skill Store"
+      },
       {
         "command": "kingsman.googleSearch",
         "title": "Kingsman: Google Search"
@@ -48,6 +53,30 @@
       {
         "command": "kingsman.googleSearchOpenAndWrite",
         "title": "Kingsman: Search, Open, and Write Artifact (Agent)"
+      },
+      {
+        "command": "kingsman.store.search",
+        "title": "Kingsman: Store Search (Agent)"
+      },
+      {
+        "command": "kingsman.store.inspect",
+        "title": "Kingsman: Store Inspect (Agent)"
+      },
+      {
+        "command": "kingsman.store.stage",
+        "title": "Kingsman: Store Stage (Agent)"
+      },
+      {
+        "command": "kingsman.store.install",
+        "title": "Kingsman: Store Install (Agent)"
+      },
+      {
+        "command": "kingsman.store.listInstalled",
+        "title": "Kingsman: Store List Installed (Agent)"
+      },
+      {
+        "command": "kingsman.store.uninstall",
+        "title": "Kingsman: Store Uninstall (Agent)"
       }
     ],
     "configuration": {
@@ -56,7 +85,12 @@
         "kingsman.searchBaseUrl": {
           "type": "string",
           "default": "https://www.google.com/search?q=",
-          "description": "Base URL for search queries. The encoded search term will be appended to this URL."
+          "description": "Base URL for Google searches"
+        },
+        "kingsman.globalSkillsPath": {
+          "type": "string",
+          "default": "",
+          "description": "Custom path for global skills folder (leave empty for default)"
         }
       }
     }
