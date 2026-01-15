@@ -1,0 +1,22 @@
+{
+    "name": "kingsman-mcp",
+    "version": "0.1.0",
+    "description": "Kingsman MCP server - Google Search URL tool for agents",
+    "main": "index.js",
+    "type": "module",
+    "scripts": {
+        "start": "node index.js"
+    },
+    "dependencies": {
+        "@modelcontextprotocol/sdk": "^0.5.0"
+    },
+    "keywords": [
+        "mcp",
+        "skill",
+        "google",
+        "search",
+        "agent"
+    ],
+    "author": "Nilhan de Mel",
+    "license": "MIT"
+}
