@@ -8,48 +8,34 @@ A minimal VS Code extension for quick Google keyword searches directly from your
 
 ## Installation
 
+### From GitHub Release (VSIX)
+
+1. Download `kingsman-<version>.vsix` from [Releases](https://github.com/Nilhan-DeMel/Kingsman/releases)
+2. In VS Code/Antigravity:
+   - Open Extensions view (`Ctrl+Shift+X`)
+   - Click `⋯` → **Install from VSIX…**
+   - Select the downloaded file
+3. Reload window if prompted
+
+**For Antigravity IDE users:** See [INSTALL_ANTIGRAVITY.md](INSTALL_ANTIGRAVITY.md) for detailed instructions.
+
 ### From Source (Development)
 
-1. Clone this repository:
+```bash
+git clone https://github.com/Nilhan-DeMel/Kingsman.git
+cd Kingsman
+npm install
+npm run compile
+```
 
-   ```bash
-   git clone <repository-url>
-   cd Kingsman
-   ```
-
-2. Install dependencies:
-
-   ```bash
-   npm install
-   ```
-
-3. Compile the extension:
-
-   ```bash
-   npm run compile
-   ```
-
-4. Open the folder in VS Code/Antigravity IDE and press `F5` to launch the Extension Development Host.
-
-### From VSIX Package
-
-1. Build the VSIX package:
-
-   ```bash
-   npm install -g @vscode/vsce
-   vsce package
-   ```
-
-2. Install the generated `.vsix` file:
-   - In VS Code: `Extensions` → `...` → `Install from VSIX...`
-   - Or via command line: `code --install-extension kingsman-0.1.0.vsix`
+Press `F5` to launch the Extension Development Host.
 
 ## Usage
 
-1. Open the Command Palette (`Ctrl+Shift+P` / `Cmd+Shift+P`)
-2. Type `Kingsman: Google Search`
+1. Open Command Palette: `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
+2. Type: `Kingsman: Google Search`
 3. Enter your search query
-4. Your default browser opens with Google Search results
+4. Your default browser opens Google Search results
 
 ## Configuration
 
@@ -60,33 +46,25 @@ A minimal VS Code extension for quick Google keyword searches directly from your
 ## Development
 
 ```bash
-# Install dependencies
-npm install
-
-# Compile TypeScript
-npm run compile
-
-# Watch mode (auto-compile on changes)
-npm run watch
-
-# Launch Extension Development Host
-# Press F5 in VS Code
+npm install       # Install dependencies
+npm run compile   # Compile TypeScript
+npm run watch     # Watch mode
+npm run package   # Build VSIX
 ```
 
-## Building & Packaging
+## Packaging
 
 ```bash
-# Install vsce globally
-npm install -g @vscode/vsce
+# Build VSIX for distribution
+npm run package
 
-# Create VSIX package
-vsce package
+# Output: kingsman-<version>.vsix
 ```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE) for details.
+MIT License - see [LICENSE](LICENSE)
 
 ## Changelog
 
-See [CHANGELOG.md](CHANGELOG.md) for version history.
+See [CHANGELOG.md](CHANGELOG.md)
