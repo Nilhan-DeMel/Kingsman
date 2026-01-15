@@ -249,11 +249,27 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
 
     const storeInstallCmd = vscode.commands.registerCommand(
         'kingsman.store.install',
-        async (args?: { stagedId: string; target?: 'global' | 'workspace'; conversionPlan?: string }): Promise<object | undefined> => {
+        async (args?: { stagedId: string; target?: 'global' | 'workspace'; conversionPlan?: string; userApproved?: boolean }): Promise<object | undefined> => {
             if (!args?.stagedId) {
                 log('[Kingsman] store.install: Missing stagedId');
                 return undefined;
             }
+
+            // SECURITY: Require explicit user approval for all installs
+            // Agents cannot bypass this - they must set userApproved which triggers the dialog
+            if (!args.userApproved) {
+                const confirm = await vscode.window.showWarningMessage(
+                    `Kingsman: Install skill from staged ID "${args.stagedId}"?`,
+                    { modal: true, detail: 'This will copy files to your global skills folder. Only install from sources you trust.' },
+                    'Install',
+                    'Cancel'
+                );
+                if (confirm !== 'Install') {
+                    log('[Kingsman] store.install: User cancelled');
+                    return { cancelled: true };
+                }
+            }
+
             try {
                 const result = await SkillRunner.install(
                     args.stagedId,
@@ -263,6 +279,7 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
                     args.conversionPlan
                 );
                 log(`[Kingsman] store.install: ${result.skillName} installed`);
+                vscode.window.showInformationMessage(`Kingsman: Installed skill "${result.skillName}"`);
                 return result;
             } catch (error) {
                 log(`[Kingsman] store.install error: ${error}`);

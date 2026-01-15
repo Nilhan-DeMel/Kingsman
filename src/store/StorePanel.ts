@@ -406,20 +406,21 @@ export class StorePanel {
     <div id="searchTab">
         <div class="search-container">
             <input type="text" class="search-input" id="searchInput" 
-                   placeholder="Find skills, e.g., 'convert pdf to text', 'code review', 'web scraping'" />
+                   placeholder="Search GitHub for skills, e.g., 'convert pdf to text', 'code review'" />
             <button class="search-btn" id="searchBtn">Search</button>
         </div>
         
         <div id="searchLoading" class="loading" style="display: none;">
             <div class="spinner"></div>
-            Searching...
+            Searching GitHub...
         </div>
         
         <div id="searchResults" class="results-grid"></div>
         
         <div id="searchEmpty" class="empty-state">
             <h2>🔍 Search for Skills</h2>
-            <p>Enter a natural language query to find skills from GitHub and other sources.</p>
+            <p>Enter a natural language query to find skills from GitHub repositories.</p>
+            <p style="font-size: 12px; color: var(--vscode-descriptionForeground);">Note: HuggingFace support planned for v0.3.</p>
         </div>
     </div>
     
@@ -493,6 +494,17 @@ export class StorePanel {
             }
         });
         
+        // SECURITY: Escape HTML to prevent XSS from untrusted repo data
+        function escapeHtml(str) {
+            if (!str) return '';
+            return String(str)
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+        }
+        
         // Tab switching
         document.querySelectorAll('.tab').forEach(tab => {
             tab.addEventListener('click', () => {
@@ -548,23 +560,23 @@ export class StorePanel {
             }
             
             container.innerHTML = data.results.map(r => \`
-                <div class="result-card" data-repo="\${r.id}">
+                <div class="result-card" data-repo="\${escapeHtml(r.id)}">
                     <div class="card-header">
                         <div>
-                            <span class="card-title">\${r.name}</span>
-                            <span class="card-meta">by \${r.owner}</span>
+                            <span class="card-title">\${escapeHtml(r.name)}</span>
+                            <span class="card-meta">by \${escapeHtml(r.owner)}</span>
                         </div>
                         <div>
                             \${r.hasSkillMd ? '<span class="badge badge-a">Skill ✓</span>' : ''}
                             \${r.stars ? '<span class="card-meta">⭐ ' + r.stars + '</span>' : ''}
                         </div>
                     </div>
-                    <div class="card-desc">\${r.description || 'No description'}</div>
+                    <div class="card-desc">\${escapeHtml(r.description) || 'No description'}</div>
                     <div class="card-actions">
-                        <button class="btn btn-secondary" onclick="quickCheck('\${r.id}')">Quick Check</button>
-                        <button class="btn btn-secondary" onclick="inspect('\${r.id}')">Inspect</button>
-                        <button class="btn btn-primary" onclick="stageAndInstall('\${r.id}')">Stage & Install</button>
-                        <button class="btn btn-secondary" onclick="openExternal('https://github.com/\${r.id}')">GitHub</button>
+                        <button class="btn btn-secondary" onclick="quickCheck('\${escapeHtml(r.id)}')">Quick Check</button>
+                        <button class="btn btn-secondary" onclick="inspect('\${escapeHtml(r.id)}')">Inspect</button>
+                        <button class="btn btn-primary" onclick="stageAndInstall('\${escapeHtml(r.id)}')">Stage & Install</button>
+                        <button class="btn btn-secondary" onclick="openExternal('https://github.com/\${escapeHtml(r.id)}')">GitHub</button>
                     </div>
                 </div>
             \`).join('');

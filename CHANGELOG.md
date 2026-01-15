@@ -2,6 +2,19 @@
 
 All notable changes to the Kingsman extension will be documented in this file.
 
+## [0.2.1] - 2026-01-15
+
+### Security
+
+- Agent `store.install` command now requires explicit user confirmation modal
+- Added `escapeHtml` sanitization for all user-provided data in search results
+- Fixed potential XSS via repository descriptions
+
+### Changed
+
+- Clarified UI: HuggingFace support planned for v0.3 (not currently implemented)
+- Search placeholder and loading text updated to reflect GitHub-only source
+
 ## [0.2.0] - 2026-01-15
 
 ### Added

@@ -2,7 +2,7 @@
   "name": "kingsman",
   "displayName": "Kingsman",
   "description": "Skill Store for Antigravity agents - discover, inspect, and install skills from GitHub",
-  "version": "0.2.0",
+  "version": "0.2.1",
   "publisher": "nilhan-demel",
   "license": "MIT",
   "icon": "assets/icon.png",
