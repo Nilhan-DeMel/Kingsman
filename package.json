@@ -2,7 +2,7 @@
   "name": "kingsman",
   "displayName": "Kingsman",
   "description": "Quick Google keyword searches from your editor",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "publisher": "nilhan-demel",
   "license": "MIT",
   "icon": "assets/icon.png",

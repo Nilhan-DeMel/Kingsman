@@ -8,7 +8,19 @@ A minimal VS Code extension for quick Google keyword searches directly from your
 
 ## Installation
 
-### From GitHub Release (VSIX)
+### From Antigravity/VS Code Marketplace (Recommended)
+
+1. Open Antigravity IDE or VS Code
+2. Press `Ctrl+Shift+X` to open Extensions
+3. Search for **"Kingsman"** or **"nilhan-demel.kingsman"**
+4. Click **Install**
+5. Reload window if prompted
+
+**Marketplace Links:**
+
+- [Open VSX](https://open-vsx.org/extension/nilhan-demel/kingsman) (Antigravity default)
+
+### From VSIX File
 
 1. Download `kingsman-<version>.vsix` from [Releases](https://github.com/Nilhan-DeMel/Kingsman/releases)
 2. In VS Code/Antigravity:
@@ -52,13 +64,18 @@ npm run watch     # Watch mode
 npm run package   # Build VSIX
 ```
 
-## Packaging
+## Publishing
+
+### To Open VSX (Antigravity Marketplace)
 
 ```bash
-# Build VSIX for distribution
-npm run package
+npx ovsx publish kingsman-<version>.vsix -p $OVSX_PAT
+```
 
-# Output: kingsman-<version>.vsix
+### To VS Code Marketplace
+
+```bash
+npx vsce publish -p $VSCE_PAT
 ```
 
 ## License
