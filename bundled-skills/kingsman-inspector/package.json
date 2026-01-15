@@ -1,0 +1,15 @@
+{
+    "name": "kingsman-inspector",
+    "version": "0.1.0",
+    "description": "Repository inspection and risk analysis for Kingsman",
+    "main": "index.js",
+    "type": "module",
+    "bin": {
+        "kingsman-inspector": "./index.js"
+    },
+    "scripts": {
+        "start": "node index.js"
+    },
+    "author": "Nilhan de Mel",
+    "license": "MIT"
+}

@@ -1,16 +1,23 @@
 # Kingsman
 
-A minimal VS Code extension for quick Google keyword searches - with agent skill support.
+A Skill Store for Antigravity agents - discover, inspect, and install skills from GitHub.
 
 ## Features
 
-- **Kingsman: Google Search** - Opens Google Search in your default browser
-- **Agent-friendly commands** - Programmatic access for AI agents (no UI prompts)
-- **MCP skill server** - Model Context Protocol integration for multi-agent systems
+### 🎩 Skill Store
+
+- **Natural Language Search** - Find skills like "convert pdf to text" or "web scraping"
+- **Quick Check** - Classify repositories as A (ready), B (convertible), or C (not suitable)
+- **Risk Scanning** - Detect binaries, scripts, and suspicious patterns before install
+- **One-Click Install** - Stage, approve, and install skills to global folder
+
+### 🔍 Google Search (Legacy)
+
+- Quick Google keyword searches from your editor
 
 ## Installation
 
-### From Antigravity/VS Code Marketplace
+### From Marketplace
 
 1. Open Extensions (`Ctrl+Shift+X`)
 2. Search: **Kingsman**
@@ -18,74 +25,74 @@ A minimal VS Code extension for quick Google keyword searches - with agent skill
 
 **Marketplace:** [Open VSX](https://open-vsx.org/extension/nilhan-demel/kingsman)
 
-### From VSIX
-
-Download from [GitHub Releases](https://github.com/Nilhan-DeMel/Kingsman/releases).
-
 ## Usage
 
-### Human Users
+### Skill Store
 
-1. `Ctrl+Shift+P` → **Kingsman: Google Search**
-2. Enter query
-3. Browser opens with results
+1. Press `Ctrl+Shift+P`
+2. Type: **Kingsman: Skill Store**
+3. Search for skills using natural language
+4. Click **Quick Check** to classify a repository
+5. Click **Inspect** for detailed analysis
+6. Click **Stage & Install** to install
 
-### AI Agents
+### Google Search
 
-See [SKILLS.md](SKILLS.md) for full agent integration documentation.
+1. Press `Ctrl+Shift+P`
+2. Type: **Kingsman: Google Search**
+3. Enter your query
 
-**Quick start:**
+## Agent API
 
+All store commands are available for AI agents:
+
+```typescript
+// Search for skills
+await vscode.commands.executeCommand('kingsman.store.search', { query: "text to speech" });
+
+// Inspect a repository
+await vscode.commands.executeCommand('kingsman.store.inspect', { repo: "owner/repo" });
+
+// Stage for installation
+await vscode.commands.executeCommand('kingsman.store.stage', { repo: "owner/repo" });
+
+// Install staged skill
+await vscode.commands.executeCommand('kingsman.store.install', { stagedId: "xxx" });
+
+// List installed skills
+await vscode.commands.executeCommand('kingsman.store.listInstalled');
+
+// Uninstall a skill
+await vscode.commands.executeCommand('kingsman.store.uninstall', { skillName: "my-skill" });
 ```
-Call: kingsman.googleSearchWriteArtifact
-Args: { "query": "your search" }
-Read: .kingsman/skills/google_search/latest.json
-```
 
-## Agent Commands
+## Directories
+
+| Path | Purpose |
+|------|---------|
+| `~/.gemini/antigravity/skills/` | Global skills folder |
+| `~/.gemini/antigravity/.kingsman/` | Kingsman data (staging, registry, cache) |
+| `<workspace>/.agent/skills/` | Workspace skills |
+
+## Commands
 
 | Command | Description |
 |---------|-------------|
-| `kingsman.googleSearchUrl` | Returns URL only (no browser) |
-| `kingsman.googleSearchWriteArtifact` | Returns URL + writes artifact file |
-| `kingsman.googleSearchOpenAndWrite` | Opens browser + writes artifact |
-
-## MCP Server (Optional)
-
-For agents supporting Model Context Protocol:
-
-```bash
-# Install MCP server dependencies
-cd skills/kingsman-mcp
-npm install
-```
-
-Register in `~/.gemini/antigravity/mcp_config.json`:
-
-```json
-{
-  "mcpServers": {
-    "kingsman-search": {
-      "command": "node",
-      "args": ["path/to/Kingsman/skills/kingsman-mcp/index.js"]
-    }
-  }
-}
-```
+| `Kingsman: Skill Store` | Open the Skill Store webview |
+| `Kingsman: Google Search` | Search Google (opens browser) |
+| `kingsman.store.search` | Agent: Search for skills |
+| `kingsman.store.inspect` | Agent: Inspect repository |
+| `kingsman.store.stage` | Agent: Stage for install |
+| `kingsman.store.install` | Agent: Install staged skill |
+| `kingsman.store.listInstalled` | Agent: List installed |
+| `kingsman.store.uninstall` | Agent: Uninstall skill |
 
 ## Configuration
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `kingsman.searchBaseUrl` | `https://www.google.com/search?q=` | Base URL for searches |
-
-## Development
-
-```bash
-npm install
-npm run compile
-npm run package
-```
+| `kingsman.searchBaseUrl` | `https://www.google.com/search?q=` | Google search URL |
+| `kingsman.globalSkillsPath` | `~/.gemini/antigravity/skills` | Custom skills folder |
 
 ## License
 

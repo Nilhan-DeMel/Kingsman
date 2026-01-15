@@ -1,13 +1,23 @@
 import * as vscode from 'vscode';
+
+// Legacy imports (existing functionality)
 import * as fs from 'fs';
 import * as path from 'path';
 
-// Output channel for agent-readable logs
+// Store imports
+import { StorePanel } from './store/StorePanel';
+import { initSecretStorage, getPat } from './secrets/GitHubAuth';
+import { bootstrapSkills, needsBootstrap } from './backend/Bootstrap';
+import { ensureAllDirectories, getGlobalSkillsPath, getStagingPath, getRegistryPath, getCachePath } from './backend/Paths';
+import * as SkillRunner from './backend/SkillRunner';
+
+// Output channel for logging
 let outputChannel: vscode.OutputChannel;
 
-/**
- * Generates a Google Search URL for the given query
- */
+// ============================================
+// URL GENERATION (Legacy)
+// ============================================
+
 function generateSearchUrl(query: string): string {
     const config = vscode.workspace.getConfiguration('kingsman');
     const baseUrl = config.get<string>('searchBaseUrl', 'https://www.google.com/search?q=');
@@ -15,9 +25,6 @@ function generateSearchUrl(query: string): string {
     return `${baseUrl}${encodedQuery}`;
 }
 
-/**
- * Logs to both console and OutputChannel for agent visibility
- */
 function log(message: string): void {
     console.log(message);
     if (outputChannel) {
@@ -25,9 +32,6 @@ function log(message: string): void {
     }
 }
 
-/**
- * Writes artifact JSON to workspace for agent consumption
- */
 async function writeArtifact(query: string, url: string, customPath?: string): Promise<string> {
     const workspaceFolders = vscode.workspace.workspaceFolders;
     if (!workspaceFolders || workspaceFolders.length === 0) {
@@ -35,14 +39,13 @@ async function writeArtifact(query: string, url: string, customPath?: string): P
     }
 
     const workspaceRoot = workspaceFolders[0].uri.fsPath;
-    const artifactDir = customPath 
+    const artifactDir = customPath
         ? path.dirname(path.join(workspaceRoot, customPath))
         : path.join(workspaceRoot, '.kingsman', 'skills', 'google_search');
-    const artifactPath = customPath 
+    const artifactPath = customPath
         ? path.join(workspaceRoot, customPath)
         : path.join(artifactDir, 'latest.json');
 
-    // Ensure directory exists
     if (!fs.existsSync(artifactDir)) {
         fs.mkdirSync(artifactDir, { recursive: true });
     }
@@ -55,21 +58,42 @@ async function writeArtifact(query: string, url: string, customPath?: string): P
     };
 
     fs.writeFileSync(artifactPath, JSON.stringify(artifact, null, 2), 'utf8');
-    
+
     return artifactPath;
 }
 
-/**
- * Called when the extension is activated.
- */
-export function activate(context: vscode.ExtensionContext): void {
-    // Create output channel for agent visibility
+// ============================================
+// ACTIVATION
+// ============================================
+
+export async function activate(context: vscode.ExtensionContext): Promise<void> {
+    // Initialize output channel
     outputChannel = vscode.window.createOutputChannel('Kingsman');
-    log('[Kingsman] Extension activated');
+    log('[Kingsman] Extension activating...');
+
+    // Initialize secret storage for PAT
+    initSecretStorage(context);
+
+    // Ensure directories exist
+    ensureAllDirectories();
+
+    // Bootstrap skills if needed
+    if (needsBootstrap(context.extensionPath)) {
+        log('[Kingsman] Backend skills need bootstrapping...');
+        try {
+            const installed = await bootstrapSkills(context.extensionPath);
+            if (installed.length > 0) {
+                log(`[Kingsman] Installed backend skills: ${installed.join(', ')}`);
+            }
+        } catch (error) {
+            log(`[Kingsman] Bootstrap error: ${error}`);
+        }
+    }
 
     // ========================================
-    // COMMAND 1: Interactive Google Search (for humans)
+    // LEGACY COMMANDS (Google Search)
     // ========================================
+
     const googleSearchCmd = vscode.commands.registerCommand('kingsman.googleSearch', async () => {
         const query = await vscode.window.showInputBox({
             prompt: 'Enter your search query',
@@ -82,9 +106,7 @@ export function activate(context: vscode.ExtensionContext): void {
             }
         });
 
-        if (query === undefined) {
-            return;
-        }
+        if (query === undefined) return;
 
         const searchUrl = generateSearchUrl(query);
         log(`[Kingsman] Opening search URL: ${searchUrl}`);
@@ -92,7 +114,6 @@ export function activate(context: vscode.ExtensionContext): void {
         try {
             const uri = vscode.Uri.parse(searchUrl);
             const success = await vscode.env.openExternal(uri);
-
             if (success) {
                 vscode.window.showInformationMessage(`Searching for: ${query}`);
             } else {
@@ -104,46 +125,33 @@ export function activate(context: vscode.ExtensionContext): void {
         }
     });
 
-    // ========================================
-    // COMMAND 2: Get URL only (for agents - no UI)
-    // ========================================
     const googleSearchUrlCmd = vscode.commands.registerCommand(
         'kingsman.googleSearchUrl',
         async (args?: { query: string }): Promise<{ url: string } | undefined> => {
             const query = args?.query;
-            
             if (!query || typeof query !== 'string' || query.trim().length === 0) {
                 log('[Kingsman] googleSearchUrl: Missing or invalid query parameter');
                 return undefined;
             }
-
             const url = generateSearchUrl(query);
             log(`[Kingsman] googleSearchUrl: ${url}`);
-            
             return { url };
         }
     );
 
-    // ========================================
-    // COMMAND 3: Write artifact file (for agents)
-    // ========================================
     const googleSearchWriteArtifactCmd = vscode.commands.registerCommand(
         'kingsman.googleSearchWriteArtifact',
         async (args?: { query: string; artifactPath?: string }): Promise<{ url: string; artifactPath: string } | undefined> => {
             const query = args?.query;
-            
             if (!query || typeof query !== 'string' || query.trim().length === 0) {
                 log('[Kingsman] googleSearchWriteArtifact: Missing or invalid query parameter');
                 return undefined;
             }
-
             try {
                 const url = generateSearchUrl(query);
                 const artifactPath = await writeArtifact(query, url, args?.artifactPath);
-                
                 log(`[Kingsman] googleSearchWriteArtifact: URL=${url}`);
                 log(`[Kingsman] googleSearchWriteArtifact: Artifact written to ${artifactPath}`);
-                
                 return { url, artifactPath };
             } catch (error) {
                 log(`[Kingsman] googleSearchWriteArtifact error: ${error}`);
@@ -152,29 +160,20 @@ export function activate(context: vscode.ExtensionContext): void {
         }
     );
 
-    // ========================================
-    // COMMAND 4: Open URL and write artifact (combined)
-    // ========================================
     const googleSearchOpenAndWriteCmd = vscode.commands.registerCommand(
         'kingsman.googleSearchOpenAndWrite',
         async (args?: { query: string }): Promise<{ url: string; artifactPath: string; opened: boolean } | undefined> => {
             const query = args?.query;
-            
             if (!query || typeof query !== 'string' || query.trim().length === 0) {
                 log('[Kingsman] googleSearchOpenAndWrite: Missing or invalid query parameter');
                 return undefined;
             }
-
             try {
                 const url = generateSearchUrl(query);
                 const artifactPath = await writeArtifact(query, url);
-                
-                // Also open in browser
                 const uri = vscode.Uri.parse(url);
                 const opened = await vscode.env.openExternal(uri);
-                
                 log(`[Kingsman] googleSearchOpenAndWrite: URL=${url}, opened=${opened}`);
-                
                 return { url, artifactPath, opened };
             } catch (error) {
                 log(`[Kingsman] googleSearchOpenAndWrite error: ${error}`);
@@ -183,18 +182,152 @@ export function activate(context: vscode.ExtensionContext): void {
         }
     );
 
+    // ========================================
+    // SKILL STORE COMMANDS
+    // ========================================
+
+    const openStoreCmd = vscode.commands.registerCommand('kingsman.store.open', () => {
+        StorePanel.createOrShow(context.extensionUri);
+    });
+
+    const storeSearchCmd = vscode.commands.registerCommand(
+        'kingsman.store.search',
+        async (args?: { query: string; filters?: object }): Promise<object | undefined> => {
+            if (!args?.query) {
+                log('[Kingsman] store.search: Missing query');
+                return undefined;
+            }
+            try {
+                const pat = await getPat();
+                const result = await SkillRunner.search(args.query, pat, getCachePath());
+                log(`[Kingsman] store.search: Found ${result.results?.length || 0} results`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.search error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    const storeInspectCmd = vscode.commands.registerCommand(
+        'kingsman.store.inspect',
+        async (args?: { repo: string }): Promise<object | undefined> => {
+            if (!args?.repo) {
+                log('[Kingsman] store.inspect: Missing repo');
+                return undefined;
+            }
+            try {
+                const pat = await getPat();
+                const result = await SkillRunner.inspect(args.repo, pat);
+                log(`[Kingsman] store.inspect: ${args.repo} -> ${result.category}`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.inspect error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    const storeStageCmd = vscode.commands.registerCommand(
+        'kingsman.store.stage',
+        async (args?: { repo: string }): Promise<object | undefined> => {
+            if (!args?.repo) {
+                log('[Kingsman] store.stage: Missing repo');
+                return undefined;
+            }
+            try {
+                const pat = await getPat();
+                const result = await SkillRunner.stage(args.repo, getStagingPath(), pat);
+                log(`[Kingsman] store.stage: ${args.repo} -> ${result.stagedId}`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.stage error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    const storeInstallCmd = vscode.commands.registerCommand(
+        'kingsman.store.install',
+        async (args?: { stagedId: string; target?: 'global' | 'workspace'; conversionPlan?: string }): Promise<object | undefined> => {
+            if (!args?.stagedId) {
+                log('[Kingsman] store.install: Missing stagedId');
+                return undefined;
+            }
+            try {
+                const result = await SkillRunner.install(
+                    args.stagedId,
+                    getStagingPath(),
+                    getGlobalSkillsPath(),
+                    getRegistryPath(),
+                    args.conversionPlan
+                );
+                log(`[Kingsman] store.install: ${result.skillName} installed`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.install error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    const storeListCmd = vscode.commands.registerCommand(
+        'kingsman.store.listInstalled',
+        async (): Promise<object | undefined> => {
+            try {
+                const result = await SkillRunner.listInstalled(getRegistryPath());
+                log(`[Kingsman] store.listInstalled: ${result.skills?.length || 0} skills`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.listInstalled error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    const storeUninstallCmd = vscode.commands.registerCommand(
+        'kingsman.store.uninstall',
+        async (args?: { skillName: string }): Promise<object | undefined> => {
+            if (!args?.skillName) {
+                log('[Kingsman] store.uninstall: Missing skillName');
+                return undefined;
+            }
+            try {
+                const result = await SkillRunner.uninstall(
+                    args.skillName,
+                    getGlobalSkillsPath(),
+                    getRegistryPath()
+                );
+                log(`[Kingsman] store.uninstall: ${args.skillName} uninstalled`);
+                return result;
+            } catch (error) {
+                log(`[Kingsman] store.uninstall error: ${error}`);
+                return { error: error instanceof Error ? error.message : 'Unknown error' };
+            }
+        }
+    );
+
+    // Register all commands
     context.subscriptions.push(
+        // Legacy
         googleSearchCmd,
         googleSearchUrlCmd,
         googleSearchWriteArtifactCmd,
         googleSearchOpenAndWriteCmd,
+        // Store
+        openStoreCmd,
+        storeSearchCmd,
+        storeInspectCmd,
+        storeStageCmd,
+        storeInstallCmd,
+        storeListCmd,
+        storeUninstallCmd,
         outputChannel
     );
+
+    log('[Kingsman] Extension activated successfully');
 }
 
-/**
- * Called when the extension is deactivated.
- */
 export function deactivate(): void {
     console.log('Kingsman extension deactivated.');
 }
