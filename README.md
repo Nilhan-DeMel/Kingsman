@@ -1,86 +1,95 @@
 # Kingsman
 
-A minimal VS Code extension for quick Google keyword searches directly from your editor.
+A minimal VS Code extension for quick Google keyword searches - with agent skill support.
 
 ## Features
 
-- **Kingsman: Google Search** - Opens Google Search in your default browser with your query
+- **Kingsman: Google Search** - Opens Google Search in your default browser
+- **Agent-friendly commands** - Programmatic access for AI agents (no UI prompts)
+- **MCP skill server** - Model Context Protocol integration for multi-agent systems
 
 ## Installation
 
-### From Antigravity/VS Code Marketplace (Recommended)
+### From Antigravity/VS Code Marketplace
 
-1. Open Antigravity IDE or VS Code
-2. Press `Ctrl+Shift+X` to open Extensions
-3. Search for **"Kingsman"** or **"nilhan-demel.kingsman"**
-4. Click **Install**
-5. Reload window if prompted
+1. Open Extensions (`Ctrl+Shift+X`)
+2. Search: **Kingsman**
+3. Click **Install**
 
-**Marketplace Links:**
+**Marketplace:** [Open VSX](https://open-vsx.org/extension/nilhan-demel/kingsman)
 
-- [Open VSX](https://open-vsx.org/extension/nilhan-demel/kingsman) (Antigravity default)
+### From VSIX
 
-### From VSIX File
-
-1. Download `kingsman-<version>.vsix` from [Releases](https://github.com/Nilhan-DeMel/Kingsman/releases)
-2. In VS Code/Antigravity:
-   - Open Extensions view (`Ctrl+Shift+X`)
-   - Click `⋯` → **Install from VSIX…**
-   - Select the downloaded file
-3. Reload window if prompted
-
-**For Antigravity IDE users:** See [INSTALL_ANTIGRAVITY.md](INSTALL_ANTIGRAVITY.md) for detailed instructions.
-
-### From Source (Development)
-
-```bash
-git clone https://github.com/Nilhan-DeMel/Kingsman.git
-cd Kingsman
-npm install
-npm run compile
-```
-
-Press `F5` to launch the Extension Development Host.
+Download from [GitHub Releases](https://github.com/Nilhan-DeMel/Kingsman/releases).
 
 ## Usage
 
-1. Open Command Palette: `Ctrl+Shift+P` (or `Cmd+Shift+P` on Mac)
-2. Type: `Kingsman: Google Search`
-3. Enter your search query
-4. Your default browser opens Google Search results
+### Human Users
+
+1. `Ctrl+Shift+P` → **Kingsman: Google Search**
+2. Enter query
+3. Browser opens with results
+
+### AI Agents
+
+See [SKILLS.md](SKILLS.md) for full agent integration documentation.
+
+**Quick start:**
+
+```
+Call: kingsman.googleSearchWriteArtifact
+Args: { "query": "your search" }
+Read: .kingsman/skills/google_search/latest.json
+```
+
+## Agent Commands
+
+| Command | Description |
+|---------|-------------|
+| `kingsman.googleSearchUrl` | Returns URL only (no browser) |
+| `kingsman.googleSearchWriteArtifact` | Returns URL + writes artifact file |
+| `kingsman.googleSearchOpenAndWrite` | Opens browser + writes artifact |
+
+## MCP Server (Optional)
+
+For agents supporting Model Context Protocol:
+
+```bash
+# Install MCP server dependencies
+cd skills/kingsman-mcp
+npm install
+```
+
+Register in `~/.gemini/antigravity/mcp_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "kingsman-search": {
+      "command": "node",
+      "args": ["path/to/Kingsman/skills/kingsman-mcp/index.js"]
+    }
+  }
+}
+```
 
 ## Configuration
 
 | Setting | Default | Description |
 |---------|---------|-------------|
-| `kingsman.searchBaseUrl` | `https://www.google.com/search?q=` | Base URL for search queries |
+| `kingsman.searchBaseUrl` | `https://www.google.com/search?q=` | Base URL for searches |
 
 ## Development
 
 ```bash
-npm install       # Install dependencies
-npm run compile   # Compile TypeScript
-npm run watch     # Watch mode
-npm run package   # Build VSIX
-```
-
-## Publishing
-
-### To Open VSX (Antigravity Marketplace)
-
-```bash
-npx ovsx publish kingsman-<version>.vsix -p $OVSX_PAT
-```
-
-### To VS Code Marketplace
-
-```bash
-npx vsce publish -p $VSCE_PAT
+npm install
+npm run compile
+npm run package
 ```
 
 ## License
 
-MIT License - see [LICENSE](LICENSE)
+MIT - see [LICENSE](LICENSE)
 
 ## Changelog
 
