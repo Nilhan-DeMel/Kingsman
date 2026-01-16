@@ -6,6 +6,7 @@ import * as path from 'path';
 
 // Store imports
 import { StorePanel } from './store/StorePanel';
+import { SkillStoreViewProvider } from './views/SkillStoreViewProvider';
 import { initSecretStorage, getPat } from './secrets/GitHubAuth';
 import { bootstrapSkills, needsBootstrap } from './backend/Bootstrap';
 import { ensureAllDirectories, getGlobalSkillsPath, getStagingPath, getRegistryPath, getCachePath } from './backend/Paths';
@@ -89,6 +90,20 @@ export async function activate(context: vscode.ExtensionContext): Promise<void> 
             log(`[Kingsman] Bootstrap error: ${error}`);
         }
     }
+
+    // ========================================
+    // ACTIVITY BAR SIDEBAR VIEW
+    // ========================================
+
+    const skillStoreViewProvider = new SkillStoreViewProvider(context.extensionUri);
+    context.subscriptions.push(
+        vscode.window.registerWebviewViewProvider(
+            SkillStoreViewProvider.viewType,
+            skillStoreViewProvider,
+            { webviewOptions: { retainContextWhenHidden: true } }
+        )
+    );
+    log('[Kingsman] Registered sidebar view provider');
 
     // ========================================
     // LEGACY COMMANDS (Google Search)

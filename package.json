@@ -2,7 +2,7 @@
   "name": "kingsman",
   "displayName": "Kingsman",
   "description": "Skill Store for Antigravity agents - discover, inspect, and install skills from GitHub",
-  "version": "0.2.1",
+  "version": "0.2.2",
   "publisher": "nilhan-demel",
   "license": "MIT",
   "icon": "assets/icon.png",
@@ -93,6 +93,24 @@
           "description": "Custom path for global skills folder (leave empty for default)"
         }
       }
+    },
+    "viewsContainers": {
+      "activitybar": [
+        {
+          "id": "kingsman",
+          "title": "Kingsman",
+          "icon": "media/kingsman.svg"
+        }
+      ]
+    },
+    "views": {
+      "kingsman": [
+        {
+          "id": "kingsman.skillStoreView",
+          "name": "Skill Store",
+          "type": "webview"
+        }
+      ]
     }
   },
   "scripts": {
