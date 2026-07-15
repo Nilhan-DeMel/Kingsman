@@ -2,6 +2,9 @@
 
 A Skill Store for Antigravity agents - discover, inspect, and install skills from GitHub.
 
+> [!TIP]
+> **Evaluating this project?** Read the [Engineering Overview](ENGINEERING_OVERVIEW.md) for the human/agent architecture, staged installation model, webview and credential security, release evidence, and guided code tour.
+
 ## Features
 
 ### 🎩 Skill Store
