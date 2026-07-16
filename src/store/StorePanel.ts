@@ -4,12 +4,10 @@
  */
 
 import * as vscode from 'vscode';
-import * as path from 'path';
-import * as fs from 'fs';
 import { getPat, storePat, deletePat } from '../secrets/GitHubAuth';
 import * as SkillRunner from '../backend/SkillRunner';
 import { getGlobalSkillsPath, getStagingPath, getRegistryPath, getCachePath, ensureAllDirectories } from '../backend/Paths';
-import type { WebviewMessage, WebviewResponse, SearchResponse, InspectionResult, StageResponse, InstallResponse, ListResponse } from '../types/contracts';
+import type { WebviewMessage, WebviewResponse } from '../types/contracts';
 
 export class StorePanel {
     public static currentPanel: StorePanel | undefined;

@@ -21,6 +21,8 @@ export class SkillStoreViewProvider implements vscode.WebviewViewProvider {
         _context: vscode.WebviewViewResolveContext,
         _token: vscode.CancellationToken
     ): void {
+        void _context;
+        void _token;
         this._view = webviewView;
 
         webviewView.webview.options = {
