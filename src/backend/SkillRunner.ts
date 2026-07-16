@@ -4,9 +4,9 @@
  */
 
 import * as path from 'path';
-import * as vscode from 'vscode';
+import * as fs from 'fs';
 import { spawn } from 'child_process';
-import { getGlobalSkillsPath, ensureAllDirectories } from './Paths';
+import { getGlobalSkillsPath } from './Paths';
 import type { SearchResponse, InspectionResult, StageResponse, InstallResponse, ListResponse, UninstallResponse } from '../types/contracts';
 
 // ============================================
@@ -69,7 +69,7 @@ export async function runSkill<T>(
                     const result = JSON.parse(stdout);
                     resolve(result);
                     return;
-                } catch (e) {
+                } catch {
                     // Continue to error handling
                 }
             }
@@ -82,7 +82,7 @@ export async function runSkill<T>(
                         reject(new Error(errorResult.error));
                         return;
                     }
-                } catch (e) {
+                } catch {
                     // Not JSON error
                 }
             }
@@ -198,7 +198,7 @@ export function areSkillsInstalled(): boolean {
     for (const skill of Object.values(SKILLS)) {
         const skillPath = path.join(globalPath, skill, 'index.js');
         try {
-            require('fs').accessSync(skillPath);
+            fs.accessSync(skillPath);
         } catch {
             return false;
         }
